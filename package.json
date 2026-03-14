@@ -1,9 +1,13 @@
 {
   "name": "silverstar-pdf-signer",
   "version": "1.0.0",
+  "description": "PDF signer backend for Silver Star",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "engines": {
+    "node": "20.x"
   },
   "dependencies": {
     "express": "^4.19.2",
