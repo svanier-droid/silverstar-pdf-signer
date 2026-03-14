@@ -1,14 +1,12 @@
 {
   "name": "silverstar-pdf-signer",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "googleapis": "^150.0.1",
+    "express": "^4.19.2",
     "pdf-lib": "^1.17.1"
   }
 }
