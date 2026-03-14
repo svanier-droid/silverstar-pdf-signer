@@ -92,27 +92,39 @@ app.post('/sign', async (req, res) => {
     ];
 
     let yPos = 670;
-    for (const [label, value] of lines) {
-      certPage.drawText(`${label}:`, {
-        x: 50,
-        y: yPos,
-        size: 11,
-        font: boldFont,
-        color: rgb(0, 0, 0)
-      });
+const labelX = 50;
+const valueX = 180;
+const fontSize = 11;
+const lineHeight = 16;
+const blockSpacing = 10;
+const maxWidth = 370;
 
-      const safeValue = String(value || '');
-      certPage.drawText(safeValue, {
-        x: 180,
-        y: yPos,
-        size: 11,
-        font,
-        color: rgb(0, 0, 0),
-        maxWidth: 370
-      });
+for (const [label, value] of lines) {
+  const safeValue = String(value || '');
 
-      yPos -= 28;
-    }
+  // coupe le texte en lignes pour éviter les overlaps
+  const wrappedLines = wrapText(safeValue, font, fontSize, maxWidth);
+
+  certPage.drawText(`${label}:`, {
+    x: labelX,
+    y: yPos,
+    size: fontSize,
+    font: boldFont,
+    color: rgb(0, 0, 0)
+  });
+
+  wrappedLines.forEach((line, index) => {
+    certPage.drawText(line, {
+      x: valueX,
+      y: yPos - (index * lineHeight),
+      size: fontSize,
+      font,
+      color: rgb(0, 0, 0)
+    });
+  });
+
+  yPos -= Math.max(lineHeight, wrappedLines.length * lineHeight) + blockSpacing;
+}
 
     certPage.drawText(
       'This certificate was generated automatically at the time of electronic signature submission.',
@@ -140,7 +152,26 @@ app.post('/sign', async (req, res) => {
     });
   }
 });
+function wrapText(text, font, fontSize, maxWidth) {
+  const words = String(text || '').split(/\s+/);
+  const lines = [];
+  let currentLine = '';
 
+  for (const word of words) {
+    const testLine = currentLine ? currentLine + ' ' + word : word;
+    const width = font.widthOfTextAtSize(testLine, fontSize);
+
+    if (width <= maxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+
+  if (currentLine) lines.push(currentLine);
+  return lines.length ? lines : [''];
+}
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`PDF signer listening on port ${PORT}`);
